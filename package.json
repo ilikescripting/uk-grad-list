@@ -1,0 +1,20 @@
+{
+  "name": "uk-intern-list",
+  "version": "1.0.0",
+  "description": "Hourly-updated list of UK graduate jobs & internships (0-2 yrs experience), aggregated from Adzuna and Reed.",
+  "main": "server/index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node server/index.js",
+    "ingest": "node server/ingest.js"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.17.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "node-cron": "^3.0.3",
+    "node-fetch": "^2.7.0"
+  }
+}

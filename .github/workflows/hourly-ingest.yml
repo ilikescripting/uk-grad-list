@@ -1,0 +1,23 @@
+name: Hourly job ingest
+
+# Runs the ingest independently of whether the host is awake, since it also
+# wakes a sleeping free-tier host as a side effect of hitting it.
+# Requires two repo secrets (Settings -> Secrets and variables -> Actions):
+#   APP_URL        e.g. https://uk-grad-list.onrender.com  (no trailing slash)
+#   INGEST_SECRET  must match the INGEST_SECRET env var set on the host
+
+on:
+  schedule:
+    - cron: "0 * * * *" # every hour, on the hour (GitHub may delay this by a few minutes under load)
+  workflow_dispatch: {} # lets you trigger it manually from the Actions tab too
+
+jobs:
+  trigger-ingest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call /api/ingest
+        run: |
+          curl --fail --show-error --silent \
+            --max-time 120 \
+            -X POST "${{ secrets.APP_URL }}/api/ingest" \
+            -H "x-ingest-secret: ${{ secrets.INGEST_SECRET }}"

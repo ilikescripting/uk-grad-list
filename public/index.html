@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>UK Grad List - Entry-level jobs & internships, refreshed hourly</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+
+<div class="bg-veil"></div>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark">◆</span>
+    <span class="brand-name">UK Grad List</span>
+  </div>
+  <a class="feedback-btn" href="mailto:feedback@example.com?subject=UK%20Grad%20List%20feedback">Feedback</a>
+</header>
+
+<main>
+  <section class="hero">
+    <h1>Every UK graduate job &amp; internship,<br />the moment it lands.</h1>
+    <p class="subhead">
+      True entry-level roles only - every listing is filtered for 0–2 years' experience
+      and refreshed hourly from Adzuna &amp; Reed, covering LinkedIn, Indeed, Totaljobs and
+      200+ other UK job boards.
+    </p>
+  </section>
+
+  <section class="stat-strip">
+    <div class="stat-card">
+      <div class="pulse-dot" id="pulse"></div>
+      <div class="stat-meta">
+        <span class="stat-label">Last refresh</span>
+        <span class="stat-value mono" id="stat-updated"> - </span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-number mono" id="stat-new">0</span>
+      <span class="stat-label">New Today</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-number mono" id="stat-total">0</span>
+      <span class="stat-label">Total Openings</span>
+    </div>
+    <form class="subscribe" id="subscribe-form">
+      <input type="text" placeholder="Job title of interest" id="sub-title" />
+      <input type="email" placeholder="Your email address" id="sub-email" />
+      <button type="submit">Notify me</button>
+    </form>
+  </section>
+
+  <section class="categories" id="categories">
+    <!-- category pills injected by app.js -->
+  </section>
+
+  <section class="filters">
+    <input type="text" id="f-title" placeholder="Search title..." />
+    <input type="text" id="f-company" placeholder="Company..." />
+    <input type="text" id="f-location" placeholder="Location (e.g. London, Remote)..." />
+    <select id="f-work-model">
+      <option value="">Work model - any</option>
+      <option value="Remote">Remote</option>
+      <option value="Hybrid">Hybrid</option>
+      <option value="On Site">On Site</option>
+    </select>
+    <select id="f-sort">
+      <option value="newest">Newest first</option>
+      <option value="salary_desc">Highest salary first</option>
+    </select>
+    <button id="f-clear">Clear</button>
+  </section>
+
+  <section class="type-filter">
+    <span class="type-filter-label">Show:</span>
+    <label class="checkbox-pill">
+      <input type="checkbox" id="f-type-internship" checked />
+      <span>Internships</span>
+    </label>
+    <label class="checkbox-pill">
+      <input type="checkbox" id="f-type-grad" checked />
+      <span>Graduate Jobs</span>
+    </label>
+    <label class="checkbox-pill tech-toggle">
+      <input type="checkbox" id="f-tech-only" />
+      <span>Tech roles only</span>
+    </label>
+  </section>
+
+  <section class="table-wrap">
+    <table id="jobs-table">
+      <thead>
+        <tr>
+          <th>Position</th>
+          <th>Company</th>
+          <th>Location</th>
+          <th>Type</th>
+          <th>Model</th>
+          <th>Salary</th>
+          <th>Posted</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="jobs-body">
+        <tr><td colspan="7" class="empty-row">Loading listings…</td></tr>
+      </tbody>
+    </table>
+    <div class="pager">
+      <button id="prev-page">← Prev</button>
+      <span id="page-info" class="mono">Page 1</span>
+      <button id="next-page">Next →</button>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p>UK Grad List - built on top of the Adzuna &amp; Reed public job APIs. Not affiliated with intern-list.com.</p>
+</footer>
+
+<script src="/app.js"></script>
+</body>
+</html>

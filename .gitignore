@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Environment variables - never commit real API keys/secrets
+.env
+.env.local
+
+# Local database files (used only when TURSO_DATABASE_URL is unset)
+data.db
+data.db-journal
+data.db-wal
+data.db-shm
+data.sqlite
+data.sqlite-journal
+data.sqlite-wal
+data.sqlite-shm
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/*
+!.vscode/extensions.json

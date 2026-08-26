@@ -118,6 +118,11 @@
 
 <footer>
   <p>UK Grad List - built on top of the Adzuna &amp; Reed public job APIs, plus direct company career-board pulls. Not affiliated with intern-list.com.</p>
+  <p class="mono-label">© <span id="year"></span> — built by the goat</p>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
 
   <details class="how-it-works">
     <summary>How this site works</summary>

@@ -144,22 +144,28 @@ async function loadStats() {
 async function loadCategories() {
   const res = await fetch("/api/categories");
   const data = await res.json();
-  const wrap = el("categories");
-  wrap.innerHTML = "";
 
-  const allPill = document.createElement("button");
-  allPill.className = "pill" + (state.category === "" ? " active" : "");
-  allPill.textContent = "All Categories";
-  allPill.onclick = () => selectCategory("");
-  wrap.appendChild(allPill);
+  const select = el("categories");
 
+  // Clear existing options
+  select.innerHTML = "";
+
+  // All categories option
+  const allOption = document.createElement("option");
+  allOption.value = "";
+  allOption.textContent = "All Categories";
+  select.appendChild(allOption);
+
+  // Add each category
   data.forEach(({ category, c }) => {
-    const pill = document.createElement("button");
-    pill.className = "pill" + (state.category === category ? " active" : "");
-    pill.textContent = `${category} (${c})`;
-    pill.onclick = () => selectCategory(category);
-    wrap.appendChild(pill);
+    const option = document.createElement("option");
+    option.value = category;
+    option.textContent = `${category} (${c})`;
+    select.appendChild(option);
   });
+
+  // Keep dropdown synced with current state
+  select.value = state.category;
 }
 
 function selectCategory(cat) {
@@ -233,7 +239,8 @@ function escapeHtml(str) {
   el(id).addEventListener("input", debounce(() => { state.page = 1; loadJobs(); }, 350));
 });
 ["f-work-model", "f-sort", "f-type-internship", "f-type-grad", "f-tech-only"].forEach((id) => {
-  el(id).addEventListener("change", () => { state.page = 1; loadJobs(); });
+  el(id).addEventListener("change", () => { state.page = 1; loadJobs(); }); });
+  el("categories").addEventListener("change", (e) => { selectCategory(e.target.value);
 });
 
 el("f-clear").addEventListener("click", () => {

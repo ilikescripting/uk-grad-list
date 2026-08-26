@@ -1,9 +1,51 @@
 # UK Grad List
 
-A self-hosted, hourly-refreshing board of UK graduate jobs & internships (0-2 yrs
-experience), inspired by intern-list.com but built for the UK market and
-weighted toward software/tech roles. Dark black/lilac UI, filterable table,
-category pills, live-ish stats strip.
+A self-hosted, hourly-refreshing job board for UK graduate jobs & internships
+(0-2 yrs experience), weighted toward software/tech roles. Built as a full
+end-to-end project: data ingestion, filtering/classification logic, a REST
+API, a frontend, and a free, persistent, shareable production deployment.
+
+**Live demo:** `https://uk-grad-list.onrender.com/`
+
+---
+
+## Why this exists
+
+Sites like this exist for the US market (intern-list.com being the direct
+inspiration) but nothing equivalent covers the UK well. Rather than scrape
+LinkedIn/Indeed directly (which breaks their Terms of Service), this pulls
+from official, free, ToS-compliant job APIs and direct employer career-board
+APIs, then applies its own filtering logic to surface only genuinely
+entry-level, UK-based, tech-leaning roles.
+
+## What this project demonstrates
+
+- **API integration at scale** - five independent data sources (Adzuna, Reed,
+  Greenhouse, Lever, Ashby), each with a different response shape, normalized
+  into one consistent schema.
+- **Practical NLP-adjacent filtering** - regex-based classification that
+  decides "is this genuinely entry-level," what category it belongs to, and
+  what tech stack it mentions, from unstructured job titles/descriptions.
+- **Real production trade-offs on a $0 budget** - the free-hosting problem
+  (ephemeral disk, sleeping instances) forced an actual architectural
+  decision: moving the database off local disk to a hosted service, and
+  moving the job scheduler off the host's own uptime onto an external
+  trigger. That reasoning is documented in full in section 3 below.
+- **Testing** - the core classification logic is covered by unit tests
+  (`npm test`), using Node's built-in test runner.
+- **A documented `/api/health` endpoint** and a live "How this site works"
+  panel on the site itself, so the engineering is visible, not just implied.
+
+## Tech stack
+
+| Layer | Choice | Why |
+|---|---|---|
+| Backend | Node.js + Express | Simple, well-documented, one language across the stack |
+| Database | Turso (hosted libSQL/SQLite) | Free, persists through host restarts/redeploys - unlike a local file |
+| Frontend | Plain HTML/CSS/JS | No build step; the app is a filtered table, not a complex UI - a framework would add complexity without adding value here |
+| Scheduling | node-cron (local) + GitHub Actions (hosted) | A host-internal timer doesn't fire reliably on a free tier that sleeps; an external trigger does |
+| Hosting | Render (free tier) | The only genuinely free, no-card option among Render/Railway/Fly.io/Vercel that's the right shape for an always-on server |
+| Testing | Node's built-in test runner | Zero extra dependencies for a handful of pure-function tests |
 
 ---
 
@@ -12,23 +54,26 @@ category pills, live-ish stats strip.
 ```
 uk-intern-list/
 ├── server/
-│   ├── index.js       Express app - serves the frontend + JSON API,
-│   │                  plus the secured /api/ingest trigger route
-│   ├── db.js           Turso/libSQL schema + query helpers (async)
-│   ├── ingest.js        Pulls listings from Adzuna, Reed, Greenhouse, Lever
-│   │                    and Ashby; filters for entry-level, categorizes,
-│   │                    classifies internship vs. graduate job
-│   ├── companies.js     List of company career-board tokens to pull from
-│   └── scheduler.js     node-cron job - optional, for local dev
+│ ├── index.js Express app - serves the frontend + JSON API,
+│ │ plus the secured /api/ingest trigger route
+│ ├── db.js Turso/libSQL schema + query helpers (async)
+│ ├── ingest.js Pulls listings from Adzuna, Reed, Greenhouse, Lever
+│ │ and Ashby; filters for entry-level, categorizes,
+│ │ classifies internship vs. graduate job
+│ ├── companies.js List of company career-board tokens to pull from
+│ └── scheduler.js node-cron job - optional, for local dev
 ├── public/
-│   ├── index.html       Page structure
-│   ├── style.css        Dark / lilac theme
-│   └── app.js            Talks to the API, renders the table, handles filters
+│ ├── index.html Page structure
+│ ├── style.css Dark / lilac theme
+│ └── app.js Talks to the API, renders the table, handles filters
+├── test/
+│ └── ingest.test.js Unit tests for the classification logic
 ├── .github/workflows/
-│   └── hourly-ingest.yml  GitHub Actions cron that triggers /api/ingest
+│ └── hourly-ingest.yml GitHub Actions cron that triggers /api/ingest
 ├── .env.example
 └── package.json
 ```
+
 
 **Flow:** `ingest.js` hits five sources (Adzuna, Reed, and direct pulls from
 Greenhouse/Lever/Ashby company boards), keeps only listings that look
@@ -185,6 +230,11 @@ To force a manual re-pull without restarting the server:
 npm run ingest
 ```
 
+To run the unit tests:
+```bash
+npm test
+```
+
 ### Running it in VS Code
 1. Open the `uk-intern-list` folder in VS Code (`File → Open Folder…`).
 2. Open a terminal (`` Ctrl+` ``), run `npm install`, add your `.env`.
@@ -204,17 +254,21 @@ npm run ingest
 - Pagination, sorting by newest / highest salary
 - Direct-from-employer listings via Greenhouse/Lever/Ashby, a few real
   companies pre-configured
+- Company logos (best-effort, with a graceful fallback badge) and a
+  copy-link button per listing
+- `/api/health` status endpoint
+- Unit tests for the classification logic
 - Stats strip, dark/lilac responsive UI
 - Persistent, shared hosting via Render + Turso + GitHub Actions (section 3)
 
-**Stubbed - you'll want to build these out:**
+**Stubbed - noted here deliberately, as "what I'd build next":**
 - **Email alerts** - the "Notify me" form just shows an alert() right now.
   Needs a subscribers table, a `/api/subscribe` route, and a transactional
   email provider (Resend, Postmark, SendGrid).
 - **Auth / saved searches** - none currently; it's a shared public view,
   filters are client-side query params, not saved server-side.
-- **Company logos / richer job detail pages** - currently just a title +
-  metadata row and an "Apply" link straight to the source listing.
+- **Richer job detail pages** - currently a table row with an "Apply" link
+  straight to the source listing, no dedicated detail view.
 - **Dedup across sources** - if the same job is posted to both Adzuna and
   Reed, you'll currently get two rows. A fuzzy-match dedupe (by
   title+company+location) is a reasonable next step if it bugs you.

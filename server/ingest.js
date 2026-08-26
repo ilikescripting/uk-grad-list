@@ -490,4 +490,13 @@ if (require.main === module) {
   runIngest().then(() => process.exit(0));
 }
 
-module.exports = { runIngest };
+module.exports = {
+  runIngest,
+  // exported mainly so they're unit-testable in isolation (see test/) -
+  // these are pure functions with no network/DB calls, so no mocking needed
+  isEntryLevel,
+  categorize,
+  classifyJobType,
+  extractTechStack,
+  detectWorkModel,
+};

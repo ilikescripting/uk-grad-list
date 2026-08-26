@@ -43,6 +43,59 @@ function timeAgo(iso) {
   return `${days}d ago`;
 }
 
+// ---------- company logos ----------
+// Best-effort only: guesses a domain from the company name and asks
+// Clearbit's free logo API for it. When that 404s (guess was wrong, or the
+// company just doesn't have a logo there), the onerror handler swaps in a
+// plain initial-letter badge instead, so it never shows a broken image icon.
+
+function domainGuess(company) {
+  return company.toLowerCase().replace(/[^a-z0-9]/g, "") + ".com";
+}
+
+function companyCellHtml(company) {
+  if (!company) return escapeHtml(" - ");
+  const domain = domainGuess(company);
+  const initial = company.trim()[0]?.toUpperCase() || "?";
+  return `
+    <span class="company-cell">
+      <img class="company-logo" src="https://logo.clearbit.com/${domain}" alt=""
+           data-fallback-initial="${escapeHtml(initial)}" />
+      <span>${escapeHtml(company)}</span>
+    </span>`;
+}
+
+function wireLogoFallbacks(container) {
+  container.querySelectorAll(".company-logo").forEach((img) => {
+    img.addEventListener(
+      "error",
+      () => {
+        const fallback = document.createElement("span");
+        fallback.className = "logo-fallback";
+        fallback.textContent = img.dataset.fallbackInitial || "?";
+        img.replaceWith(fallback);
+      },
+      { once: true }
+    );
+  });
+}
+
+// ---------- loading skeleton ----------
+
+function skeletonRowsHtml(count = 8) {
+  const cellWidths = ["70%", "55%", "50%", "40%", "45%", "35%", "30%", "50%"];
+  let rows = "";
+  for (let i = 0; i < count; i++) {
+    rows +=
+      "<tr class=\"skeleton-row\">" +
+      cellWidths
+        .map((w) => `<td><div class="skeleton-bar" style="width:${w}"></div></td>`)
+        .join("") +
+      "</tr>";
+  }
+  return rows;
+}
+
 function buildQuery() {
   const params = new URLSearchParams();
   const title = el("f-title").value.trim();
@@ -118,7 +171,7 @@ function selectCategory(cat) {
 
 async function loadJobs() {
   const body = el("jobs-body");
-  body.innerHTML = `<tr><td colspan="8" class="empty-row">Loading listings...</td></tr>`;
+  body.innerHTML = skeletonRowsHtml();
 
   const res = await fetch(`/api/jobs?${buildQuery()}`);
   const data = await res.json();
@@ -140,19 +193,26 @@ async function loadJobs() {
               .map((t) => `<span class="tech-tag">${escapeHtml(t.trim())}</span>`)
               .join("")}</div>`
           : "";
+        const applyBtn = job.url
+          ? `<a class="apply-btn" href="${job.url}" target="_blank" rel="noopener">Apply</a>`
+          : "";
+        const copyBtn = job.url
+          ? `<button class="copy-btn" data-url="${escapeHtml(job.url)}" title="Copy link to this listing">Copy</button>`
+          : "";
         return `
         <tr>
           <td class="job-title">${escapeHtml(job.title)}${techTags}</td>
-          <td class="job-company">${escapeHtml(job.company || " - ")}</td>
+          <td class="job-company">${companyCellHtml(job.company)}</td>
           <td class="job-location">${escapeHtml(job.location || " - ")}</td>
           <td>${typeBadge}</td>
           <td>${modelBadge}</td>
           <td class="mono">${escapeHtml(job.salary_text || "N/A")}</td>
           <td class="mono">${timeAgo(job.posted_at || job.first_seen_at)}</td>
-          <td>${job.url ? `<a class="apply-btn" href="${job.url}" target="_blank" rel="noopener">Apply</a>` : ""}</td>
+          <td class="action-cell">${applyBtn}${copyBtn}</td>
         </tr>`;
       })
       .join("");
+    wireLogoFallbacks(body);
   }
 
   const totalPages = Math.max(1, Math.ceil(data.total / data.page_size));
@@ -193,6 +253,27 @@ el("f-clear").addEventListener("click", () => {
 
 el("prev-page").addEventListener("click", () => { if (state.page > 1) { state.page--; loadJobs(); } });
 el("next-page").addEventListener("click", () => { state.page++; loadJobs(); });
+
+// Delegated so it keeps working after loadJobs() replaces the table body's
+// innerHTML on every filter change/page turn.
+el("jobs-body").addEventListener("click", async (e) => {
+  const btn = e.target.closest(".copy-btn");
+  if (!btn) return;
+  const url = btn.dataset.url;
+  if (!url) return;
+  try {
+    await navigator.clipboard.writeText(url);
+    const original = btn.textContent;
+    btn.textContent = "Copied!";
+    btn.classList.add("copied");
+    setTimeout(() => {
+      btn.textContent = original;
+      btn.classList.remove("copied");
+    }, 1500);
+  } catch (err) {
+    console.warn("Clipboard write failed:", err);
+  }
+});
 
 el("subscribe-form").addEventListener("submit", (e) => {
   e.preventDefault();

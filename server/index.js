@@ -8,9 +8,30 @@ const { startScheduler } = require("./scheduler");
 
 const app = express();
 const PORT = process.env.PORT || 4000;
+const startedAt = Date.now();
 
 app.use(cors());
 app.use(express.static(path.join(__dirname, "..", "public")));
+
+// ---------- GET /api/health ----------
+// A quick, no-secret-required status check: is the server up, how long has
+// it been running, how many jobs are tracked, and when did ingest last
+// succeed. Useful for a status page, an uptime monitor, or just proving to
+// yourself (or anyone looking at the project) that this is a real running
+// service rather than a one-off script.
+app.get("/api/health", async (req, res) => {
+  try {
+    const stats = await getStats();
+    res.json({
+      status: "ok",
+      uptime_seconds: Math.round((Date.now() - startedAt) / 1000),
+      total_openings: stats.total_openings,
+      last_ingest: stats.last_updated,
+    });
+  } catch (err) {
+    res.status(500).json({ status: "error", error: err.message });
+  }
+});
 
 // ---------- GET /api/jobs ----------
 // Query params: title, company, location, work_model, category, categories

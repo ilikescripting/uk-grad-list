@@ -235,6 +235,43 @@ tbody tr:hover { background: var(--surface-2); }
 .job-title { font-weight: 500; color: var(--text); }
 .job-company, .job-location { color: var(--text-muted); }
 
+.company-cell { display: flex; align-items: center; gap: 8px; }
+.company-logo {
+  width: 20px; height: 20px;
+  border-radius: 5px;
+  object-fit: contain;
+  background: var(--surface-2);
+  flex-shrink: 0;
+}
+.logo-fallback {
+  width: 20px; height: 20px;
+  border-radius: 5px;
+  background: var(--lilac-dim);
+  color: var(--lilac);
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ---------- loading skeleton ---------- */
+
+.skeleton-row td { padding: 16px 18px; }
+.skeleton-bar {
+  height: 13px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--surface-2) 25%, var(--border-soft) 37%, var(--surface-2) 63%);
+  background-size: 400% 100%;
+  animation: skeleton-shimmer 1.4s ease infinite;
+}
+@keyframes skeleton-shimmer {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0 50%; }
+}
+
 .badge {
   display: inline-block;
   padding: 4px 10px;
@@ -268,6 +305,19 @@ tbody tr:hover { background: var(--surface-2); }
 }
 .apply-btn:hover { background: #c7baff; }
 
+.action-cell { display: flex; gap: 6px; align-items: center; }
+.copy-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 12px;
+  padding: 8px 12px;
+  border-radius: 7px;
+  cursor: pointer;
+}
+.copy-btn:hover { border-color: var(--lilac-deep); color: var(--lilac); }
+.copy-btn.copied { border-color: var(--lilac-deep); color: var(--lilac); background: var(--lilac-dim); }
+
 .empty-row { text-align: center; color: var(--text-faint); padding: 40px !important; }
 
 .pager {
@@ -286,6 +336,27 @@ footer {
   text-align: center; padding: 30px; color: var(--text-faint); font-size: 12px;
   border-top: 1px solid var(--border-soft);
 }
+
+.how-it-works {
+  max-width: 640px;
+  margin: 18px auto 0;
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  padding: 4px 18px;
+}
+.how-it-works summary {
+  cursor: pointer;
+  padding: 12px 0;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+.how-it-works summary:hover { color: var(--lilac); }
+.how-it-works-body { padding: 0 0 16px; color: var(--text-faint); font-size: 12.5px; line-height: 1.6; }
+.how-it-works-body p { margin: 0 0 10px; }
+.how-it-works-body p:last-child { margin-bottom: 0; }
 
 @media (max-width: 720px) {
   .stat-strip { grid-template-columns: 1fr 1fr; }

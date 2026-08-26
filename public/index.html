@@ -105,7 +105,7 @@
         </tr>
       </thead>
       <tbody id="jobs-body">
-        <tr><td colspan="7" class="empty-row">Loading listings…</td></tr>
+        <tr><td colspan="8" class="empty-row">Loading listings...</td></tr>
       </tbody>
     </table>
     <div class="pager">
@@ -117,7 +117,30 @@
 </main>
 
 <footer>
-  <p>UK Grad List - built on top of the Adzuna &amp; Reed public job APIs. Not affiliated with intern-list.com.</p>
+  <p>UK Grad List - built on top of the Adzuna &amp; Reed public job APIs, plus direct company career-board pulls. Not affiliated with intern-list.com.</p>
+
+  <details class="how-it-works">
+    <summary>How this site works</summary>
+    <div class="how-it-works-body">
+      <p>
+        Every hour, a script pulls fresh listings from Adzuna, Reed, and a
+        handful of company career boards (Greenhouse, Lever, Ashby), filters
+        them down to genuinely entry-level, UK-based roles, tags each one
+        with a category and (for tech roles) a detected tech stack, and
+        stores them in a hosted database.
+      </p>
+      <p>
+        The listing you're looking at right now is served by a small
+        Node.js/Express backend, with a plain HTML/CSS/JS frontend and no
+        build step. Nothing here scrapes LinkedIn or Indeed directly - just
+        their public, ToS-friendly APIs, plus employers' own official career
+        board APIs.
+      </p>
+      <p>
+        Live status: <a href="/api/health" target="_blank" rel="noopener">/api/health</a>
+      </p>
+    </div>
+  </details>
 </footer>
 
 <script src="/app.js"></script>
